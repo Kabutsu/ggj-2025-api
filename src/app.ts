@@ -13,6 +13,7 @@ import indexRouter from './routes/index';
 import usersRouter from './routes/users';
 import postsRouter from './routes/posts'
 import roomsRouter from './routes/rooms';
+import { Dislike, Like } from '@prisma/client';
 
 var app = express();
 
@@ -41,24 +42,24 @@ app.use('/rooms', roomsRouter);
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  socket.on('like', ({ postId }) => {
-    console.log('liked: ' + postId);
-    io.emit('liked', { postId });
+  socket.on('like', (data: Like) => {
+    console.log('liked: ' + data.postId);
+    io.emit('liked', data);
   });
 
-  socket.on('unlike', ({ postId }) => {
-    console.log('unliked: ' + postId);
-    io.emit('unliked', { postId });
+  socket.on('unlike', (data: Like) => {
+    console.log('unliked: ' + data.postId);
+    io.emit('unliked', data);
   });
 
-  socket.on('dislike', ({ postId }) => {
-    console.log('disliked: ' + postId);
-    io.emit('disliked', { postId });
+  socket.on('dislike', (data: Dislike) => {
+    console.log('disliked: ' + data.postId);
+    io.emit('disliked', data);
   });
 
-  socket.on('undislike', ({ postId }) => {
-    console.log('undisliked: ' + postId);
-    io.emit('undisliked', { postId });
+  socket.on('undislike', (data: Dislike) => {
+    console.log('undisliked: ' + data.postId);
+    io.emit('undisliked', data);
   });
   
   socket.on('comment', (msg) => {
@@ -75,7 +76,7 @@ io.on('connection', (socket) => {
   });
 
   socket.on('post', ({ roomCode, userId, message }) => {
-    io.to(roomCode).emit('post', { userId, message });
+    io.to(roomCode).emit('posted', { userId, message });
     console.log(`User ${userId} posted in room ${roomCode}`);
   })
 

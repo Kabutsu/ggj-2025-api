@@ -37,21 +37,21 @@ app.use('/rooms', rooms_1.default);
 // socket setup
 io.on('connection', (socket) => {
     console.log('a user connected');
-    socket.on('like', ({ postId }) => {
-        console.log('liked: ' + postId);
-        io.emit('liked', { postId });
+    socket.on('like', (data) => {
+        console.log('liked: ' + data.postId);
+        io.emit('liked', data);
     });
-    socket.on('unlike', ({ postId }) => {
-        console.log('unliked: ' + postId);
-        io.emit('unliked', { postId });
+    socket.on('unlike', (data) => {
+        console.log('unliked: ' + data.postId);
+        io.emit('unliked', data);
     });
-    socket.on('dislike', ({ postId }) => {
-        console.log('disliked: ' + postId);
-        io.emit('disliked', { postId });
+    socket.on('dislike', (data) => {
+        console.log('disliked: ' + data.postId);
+        io.emit('disliked', data);
     });
-    socket.on('undislike', ({ postId }) => {
-        console.log('undisliked: ' + postId);
-        io.emit('undisliked', { postId });
+    socket.on('undislike', (data) => {
+        console.log('undisliked: ' + data.postId);
+        io.emit('undisliked', data);
     });
     socket.on('comment', (msg) => {
         console.log('comment: ' + msg);
@@ -64,7 +64,7 @@ io.on('connection', (socket) => {
         console.log(`${userId} joined room ${roomCode}`);
     });
     socket.on('post', ({ roomCode, userId, message }) => {
-        io.to(roomCode).emit('post', { userId, message });
+        io.to(roomCode).emit('posted', { userId, message });
         console.log(`User ${userId} posted in room ${roomCode}`);
     });
     socket.on('disconnect', () => {

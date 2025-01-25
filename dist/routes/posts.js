@@ -32,6 +32,9 @@ router.get('/:roomId', (req, res, next) => __awaiter(void 0, void 0, void 0, fun
                 likes: true,
                 dislikes: true,
             },
+            orderBy: {
+                createdAt: 'desc',
+            }
         });
         res.json(posts);
     }
@@ -157,13 +160,16 @@ router.post('/:id/unlike', (req, res, next) => __awaiter(void 0, void 0, void 0,
     const id = req.params.id;
     const { userId } = req.body;
     try {
-        const like = yield prisma.like.deleteMany({
+        const like = yield prisma.like.findFirstOrThrow({
             where: {
                 postId: id,
                 userId,
             },
         });
-        res.json({ message: 'Like removed' });
+        yield prisma.like.delete({
+            where: { id: like.id },
+        });
+        res.json(like);
     }
     catch (error) {
         next(error);
@@ -191,13 +197,16 @@ router.post('/:id/undislike', (req, res, next) => __awaiter(void 0, void 0, void
     const id = req.params.id;
     const { userId } = req.body;
     try {
-        const dislike = yield prisma.dislike.deleteMany({
+        const dislike = yield prisma.dislike.findFirstOrThrow({
             where: {
                 postId: id,
                 userId,
             },
         });
-        res.json({ message: 'Dislike removed' });
+        yield prisma.dislike.delete({
+            where: { id: dislike.id },
+        });
+        res.json(dislike);
     }
     catch (error) {
         next(error);

@@ -20,6 +20,9 @@ router.get('/:roomId', async (req: Request, res: Response, next: NextFunction) =
         likes: true,
         dislikes: true,
       },
+      orderBy: {
+        createdAt: 'desc',
+      }
     });
     res.json(posts);
   } catch (error) {
@@ -150,13 +153,18 @@ router.post('/:id/unlike', async (req: Request, res: Response, next: NextFunctio
   const { userId } = req.body;
 
   try {
-    const like = await prisma.like.deleteMany({
+    const like = await prisma.like.findFirstOrThrow({
       where: {
         postId: id,
         userId,
       },
     });
-    res.json({ message: 'Like removed' });
+
+    await prisma.like.delete({
+      where: { id: like.id },
+    });
+    
+    res.json(like);
   } catch (error) {
     next(error);
   }
@@ -186,13 +194,18 @@ router.post('/:id/undislike', async (req: Request, res: Response, next: NextFunc
   const { userId } = req.body;
 
   try {
-    const dislike = await prisma.dislike.deleteMany({
+    const dislike = await prisma.dislike.findFirstOrThrow({
       where: {
         postId: id,
         userId,
       },
     });
-    res.json({ message: 'Dislike removed' });
+
+    await prisma.dislike.delete({
+      where: { id: dislike.id },
+    });
+
+    res.json(dislike);
   } catch (error) {
     next(error);
   }
