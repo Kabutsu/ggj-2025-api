@@ -14,6 +14,7 @@ const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
 const index_1 = __importDefault(require("./routes/index"));
 const users_1 = __importDefault(require("./routes/users"));
+const posts_1 = __importDefault(require("./routes/posts"));
 var app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
@@ -30,12 +31,29 @@ app.use(cookieParser());
 app.use(express_1.default.static(path.join(__dirname, 'public')));
 app.use('/', index_1.default);
 app.use('/users', users_1.default);
+app.use('/posts', posts_1.default);
 // socket setup
 io.on('connection', (socket) => {
     console.log('a user connected');
-    socket.on('chat message', (msg) => {
-        console.log('message: ' + msg);
-        io.emit('message', msg);
+    socket.on('like', ({ postId }) => {
+        console.log('liked: ' + postId);
+        io.emit('liked', { postId });
+    });
+    socket.on('unlike', ({ postId }) => {
+        console.log('unliked: ' + postId);
+        io.emit('unliked', { postId });
+    });
+    socket.on('dislike', ({ postId }) => {
+        console.log('disliked: ' + postId);
+        io.emit('disliked', { postId });
+    });
+    socket.on('undislike', ({ postId }) => {
+        console.log('undisliked: ' + postId);
+        io.emit('undisliked', { postId });
+    });
+    socket.on('comment', (msg) => {
+        console.log('comment: ' + msg);
+        io.emit('comment', msg);
     });
     socket.on('disconnect', () => {
         console.log('user disconnected');
