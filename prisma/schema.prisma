@@ -20,6 +20,7 @@ model Room {
   createdAt DateTime @default(now())
   users     User[]
   traitors  User[]   @relation("Traitors")
+  posts     Post[]
 }
 
 model User {
@@ -68,6 +69,8 @@ model Post {
   content   String
   createdAt DateTime @default(now())
   userId    String
+  roomId    String
+  Room      Room      @relation(fields: [roomId], references: [code], map: "Post_roomId_fkey")
   User      User     @relation(fields: [userId], references: [id], map: "Post_userId_fkey", name: "UserPosts")
   comments  Comment[] @relation("PostComments")
   likes     Like[]    @relation("PostLikes")

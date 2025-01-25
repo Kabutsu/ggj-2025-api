@@ -74,6 +74,11 @@ io.on('connection', (socket) => {
     console.log(`${username} joined room ${roomCode}`);
   });
 
+  socket.on('post', ({ roomCode, userId, message }) => {
+    io.to(roomCode).emit('post', { userId, message });
+    console.log(`User ${userId} posted in room ${roomCode}`);
+  })
+
   socket.on('disconnect', () => {
     console.log('user disconnected');
   });
