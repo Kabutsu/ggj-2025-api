@@ -1,0 +1,74 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Room {
+  id        String   @id @default(uuid())
+  code      String   @unique
+  createdAt DateTime @default(now())
+  users     User[]
+  traitors  User[]   @relation("Traitors")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  profileUrl String
+  sentiment Int
+  roomId    String
+  isTraitor Boolean   @default(false)
+  Room      Room      @relation(fields: [roomId], references: [id], map: "User_roomId_fkey")
+  traitorIn Room?     @relation("Traitors", fields: [roomId], references: [id], map: "User_traitorIn_fkey")
+  posts     Post[]    @relation("UserPosts")
+  comments  Comment[] @relation("UserComments")
+  likes     Like[]    @relation("UserLikes")
+  dislikes  Dislike[] @relation("UserDislikes")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  userId    String
+  postId    String
+  User      User     @relation(fields: [userId], references: [id], map: "Comment_userId_fkey", name: "UserComments")
+  Post      Post     @relation(fields: [postId], references: [id], map: "Comment_postId_fkey", name: "PostComments")
+}
+
+model Like {
+  id        String   @id @default(uuid())
+  userId    String
+  postId    String
+  User      User     @relation(fields: [userId], references: [id], map: "Like_userId_fkey", name: "UserLikes")
+  Post      Post     @relation(fields: [postId], references: [id], map: "Like_postId_fkey", name: "PostLikes")
+}
+
+model Dislike {
+  id        String   @id @default(uuid())
+  userId    String
+  postId    String
+  User      User     @relation(fields: [userId], references: [id], map: "Dislike_userId_fkey", name: "UserDislikes")
+  Post      Post     @relation(fields: [postId], references: [id], map: "Dislike_postId_fkey", name: "PostDislikes")
+}
+
+model Post {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  userId    String
+  User      User     @relation(fields: [userId], references: [id], map: "Post_userId_fkey", name: "UserPosts")
+  comments  Comment[] @relation("PostComments")
+  likes     Like[]    @relation("PostLikes")
+  dislikes  Dislike[] @relation("PostDislikes")
+}
