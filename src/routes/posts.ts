@@ -65,7 +65,16 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
       data: {
         content,
         userId,
-        roomId,
+        User: {
+          connect: {
+            id: userId,
+          },
+        },
+        Room: {
+          connect: {
+            code: roomId,  // Use connect to link the post to the Room by its code
+          },
+        },
       },
     });
     res.status(201).json(post);

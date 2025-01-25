@@ -75,7 +75,16 @@ router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function*
             data: {
                 content,
                 userId,
-                roomId,
+                User: {
+                    connect: {
+                        id: userId,
+                    },
+                },
+                Room: {
+                    connect: {
+                        code: roomId, // Use connect to link the post to the Room by its code
+                    },
+                },
             },
         });
         res.status(201).json(post);

@@ -57,11 +57,11 @@ io.on('connection', (socket) => {
         console.log('comment: ' + msg);
         io.emit('comment', msg);
     });
-    socket.on('join-room', ({ roomCode, username }) => {
+    socket.on('join-room', ({ roomCode, userId }) => {
         socket.join(roomCode);
         // Broadcast to others in the room that a new user has joined
-        io.to(roomCode).emit('user-joined', { username });
-        console.log(`${username} joined room ${roomCode}`);
+        io.to(roomCode).emit('user-joined', { userId });
+        console.log(`${userId} joined room ${roomCode}`);
     });
     socket.on('post', ({ roomCode, userId, message }) => {
         io.to(roomCode).emit('post', { userId, message });
