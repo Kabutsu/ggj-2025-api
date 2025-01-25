@@ -11,6 +11,7 @@ import { Server } from 'socket.io';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
+import postsRouter from './routes/posts';
 
 var app = express();
 
@@ -32,14 +33,20 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/posts', postsRouter);
 
 // socket setup
 io.on('connection', (socket) => {
   console.log('a user connected');
+
+  socket.on('test', (msg) => {
+    console.log('test: ' + msg);
+    io.emit('test', msg);
+  });
   
-  socket.on('chat message', (msg) => {
-    console.log('message: ' + msg);
-    io.emit('message', msg);
+  socket.on('comment', (msg) => {
+    console.log('comment: ' + msg);
+    io.emit('comment', msg);
   });
 
   socket.on('disconnect', () => {
