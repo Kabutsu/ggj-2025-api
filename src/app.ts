@@ -1,15 +1,16 @@
 var createError = require('http-errors');
-var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
-const http = require('http');
-const { Server } = require('socket.io');
 const jwt = require('jsonwebtoken');
 const cors = require('cors');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+import express, { Request, Response, NextFunction } from 'express';
+import http from 'http';
+import { Server } from 'socket.io';
+
+import indexRouter from './routes/index';
+import usersRouter from './routes/users';
 
 var app = express();
 
@@ -21,8 +22,6 @@ const io = new Server(server, {
 });
 
 // view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'ejs');
 
 app.use(logger('dev'));
 app.use(cors());
@@ -37,9 +36,10 @@ app.use('/users', usersRouter);
 // socket setup
 io.on('connection', (socket) => {
   console.log('a user connected');
+  
   socket.on('chat message', (msg) => {
     console.log('message: ' + msg);
-    io.emit('message', data);
+    io.emit('message', msg);
   });
 
   socket.on('disconnect', () => {
@@ -58,14 +58,12 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res, next) {
-  // set locals, only providing error in development
-  res.locals.message = err.message;
-  res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-  // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+app.use(function(err: any, req: Request, res: Response, next: NextFunction) {
+  // send JSON error response
+  res.status(err.status || 500).json({
+    message: err.message,
+    error: req.app.get('env') === 'development' ? err : {},
+  });
 });
 
 module.exports = app;
