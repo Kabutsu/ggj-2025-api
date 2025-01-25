@@ -80,3 +80,5 @@ router.post('/assign-traitor', async (req, res) => {
     res.status(500).send('Error assigning traitor');
   }
 });
+
+export default router;

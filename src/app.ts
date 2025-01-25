@@ -11,7 +11,8 @@ import { Server } from 'socket.io';
 
 import indexRouter from './routes/index';
 import usersRouter from './routes/users';
-import postsRouter from './routes/posts';
+import postsRouter from './routes/posts'
+import roomsRouter from './routes/rooms';
 
 var app = express();
 
@@ -34,6 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/posts', postsRouter);
+app.use('/rooms', roomsRouter);
 
 // socket setup
 io.on('connection', (socket) => {
@@ -62,6 +64,14 @@ io.on('connection', (socket) => {
   socket.on('comment', (msg) => {
     console.log('comment: ' + msg);
     io.emit('comment', msg);
+  });
+
+  socket.on('join-room', ({ roomCode, username }) => {
+    socket.join(roomCode);
+    
+    // Broadcast to others in the room that a new user has joined
+    io.to(roomCode).emit('user-joined', { username });
+    console.log(`${username} joined room ${roomCode}`);
   });
 
   socket.on('disconnect', () => {
