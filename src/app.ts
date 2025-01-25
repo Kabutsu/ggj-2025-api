@@ -39,9 +39,24 @@ app.use('/posts', postsRouter);
 io.on('connection', (socket) => {
   console.log('a user connected');
 
-  socket.on('test', (msg) => {
-    console.log('test: ' + msg);
-    io.emit('test', msg);
+  socket.on('like', ({ postId }) => {
+    console.log('liked: ' + postId);
+    io.emit('liked', { postId });
+  });
+
+  socket.on('unlike', ({ postId }) => {
+    console.log('unliked: ' + postId);
+    io.emit('unliked', { postId });
+  });
+
+  socket.on('dislike', ({ postId }) => {
+    console.log('disliked: ' + postId);
+    io.emit('disliked', { postId });
+  });
+
+  socket.on('undislike', ({ postId }) => {
+    console.log('undisliked: ' + postId);
+    io.emit('undisliked', { postId });
   });
   
   socket.on('comment', (msg) => {
