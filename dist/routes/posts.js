@@ -70,11 +70,14 @@ router.get('/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 /* POST create a new post. */
 router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { userId, roomId, content } = req.body;
+    // Check if userId is provided
+    if (!userId) {
+        return res.status(400).json({ error: 'User ID is required' });
+    }
     try {
         const post = yield prisma.post.create({
             data: {
                 content,
-                userId,
                 User: {
                     connect: {
                         id: userId,
@@ -82,7 +85,7 @@ router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function*
                 },
                 Room: {
                     connect: {
-                        code: roomId, // Use connect to link the post to the Room by its code
+                        id: roomId,
                     },
                 },
             },
@@ -90,6 +93,7 @@ router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function*
         res.status(201).json(post);
     }
     catch (error) {
+        console.log(error);
         next(error);
     }
 }));

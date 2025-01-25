@@ -49,6 +49,7 @@ router.post('/join-room', (req, res) => __awaiter(void 0, void 0, void 0, functi
                     profileUrl,
                 },
             });
+            console.log(`User ${user.id} joined room ${room.code}`);
             res.json(user);
         }
         else {

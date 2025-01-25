@@ -60,11 +60,15 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
 router.post('/', async (req: Request, res: Response, next: NextFunction) => {
   const { userId, roomId, content } = req.body;
 
+  // Check if userId is provided
+  if (!userId) {
+    return res.status(400).json({ error: 'User ID is required' });
+  }
+  
   try {
     const post = await prisma.post.create({
       data: {
         content,
-        userId,
         User: {
           connect: {
             id: userId,
@@ -72,13 +76,14 @@ router.post('/', async (req: Request, res: Response, next: NextFunction) => {
         },
         Room: {
           connect: {
-            code: roomId,  // Use connect to link the post to the Room by its code
+            id: roomId,
           },
         },
       },
     });
     res.status(201).json(post);
   } catch (error) {
+    console.log(error);
     next(error);
   }
 });

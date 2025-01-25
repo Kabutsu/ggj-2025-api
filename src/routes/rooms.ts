@@ -55,6 +55,8 @@ router.post('/join-room', async (req, res) => {
         },
       });
 
+      console.log(`User ${user.id} joined room ${room.code}`);
+
       res.json(user);
     } else {
       res.status(404).send('Room not found');
