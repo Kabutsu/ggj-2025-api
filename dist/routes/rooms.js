@@ -75,3 +75,4 @@ router.post('/assign-traitor', (req, res) => __awaiter(void 0, void 0, void 0, f
         res.status(500).send('Error assigning traitor');
     }
 }));
+exports.default = router;

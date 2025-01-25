@@ -15,6 +15,7 @@ const socket_io_1 = require("socket.io");
 const index_1 = __importDefault(require("./routes/index"));
 const users_1 = __importDefault(require("./routes/users"));
 const posts_1 = __importDefault(require("./routes/posts"));
+const rooms_1 = __importDefault(require("./routes/rooms"));
 var app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
@@ -32,6 +33,7 @@ app.use(express_1.default.static(path.join(__dirname, 'public')));
 app.use('/', index_1.default);
 app.use('/users', users_1.default);
 app.use('/posts', posts_1.default);
+app.use('/rooms', rooms_1.default);
 // socket setup
 io.on('connection', (socket) => {
     console.log('a user connected');
@@ -54,6 +56,16 @@ io.on('connection', (socket) => {
     socket.on('comment', (msg) => {
         console.log('comment: ' + msg);
         io.emit('comment', msg);
+    });
+    socket.on('join-room', ({ roomCode, username }) => {
+        socket.join(roomCode);
+        // Broadcast to others in the room that a new user has joined
+        io.to(roomCode).emit('user-joined', { username });
+        console.log(`${username} joined room ${roomCode}`);
+    });
+    socket.on('post', ({ roomCode, userId, message }) => {
+        io.to(roomCode).emit('post', { userId, message });
+        console.log(`User ${userId} posted in room ${roomCode}`);
     });
     socket.on('disconnect', () => {
         console.log('user disconnected');

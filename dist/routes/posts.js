@@ -17,9 +17,11 @@ const client_1 = require("@prisma/client");
 const prisma = new client_1.PrismaClient();
 const router = express_1.default.Router();
 /* GET posts listing. */
-router.get('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+router.get('/:roomId', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const roomId = req.params.roomId;
     try {
         const posts = yield prisma.post.findMany({
+            where: { roomId },
             include: {
                 User: true,
                 comments: {
@@ -67,12 +69,13 @@ router.get('/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, functio
 }));
 /* POST create a new post. */
 router.post('/', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const { userId, content } = req.body;
+    const { userId, roomId, content } = req.body;
     try {
         const post = yield prisma.post.create({
             data: {
                 content,
                 userId,
+                roomId,
             },
         });
         res.status(201).json(post);
