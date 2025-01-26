@@ -36,6 +36,8 @@ model User {
   comments  Comment[] @relation("UserComments")
   likes     Like[]    @relation("UserLikes")
   dislikes  Dislike[] @relation("UserDislikes")
+  flags     Flag[]    @relation("UserFlags")
+  flaggedBy Flag[]    @relation("FlaggedBy")
 }
 
 model Comment {
@@ -46,6 +48,14 @@ model Comment {
   postId    String
   User      User     @relation(fields: [userId], references: [id], map: "Comment_userId_fkey", name: "UserComments")
   Post      Post     @relation(fields: [postId], references: [id], map: "Comment_postId_fkey", name: "PostComments")
+}
+
+model Flag {
+  id        String   @id @default(uuid())
+  userId    String
+  flaggedById String
+  User      User     @relation(fields: [userId], references: [id], map: "Flag_userId_fkey", name: "UserFlags")
+  flaggedBy User     @relation(fields: [flaggedById], references: [id], map: "Flag_flaggedBy_fkey", name: "FlaggedBy")
 }
 
 model Like {

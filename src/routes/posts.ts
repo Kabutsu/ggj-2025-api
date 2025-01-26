@@ -34,26 +34,9 @@ const createPostsRouter = (io: Server) => {
             }
           },
         },
-        orderBy: [
-          {
-            likes: {
-              _count: 'desc',
-            },
-          },
-          {
-            comments: {
-              _count: 'desc',
-            },
-          },
-          {
-            User: {
-              sentiment: 'desc',
-            },
-          },
-          {
-            createdAt: 'desc',
-          },
-        ],
+        orderBy: {
+          createdAt: 'desc',
+        },
       });
       res.json(posts);
     } catch (error) {

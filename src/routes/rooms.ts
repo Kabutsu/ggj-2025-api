@@ -98,13 +98,18 @@ router.get('/:roomId/status', async (req, res) => {
   try {
     const room = await prisma.room.findUnique({
       where: { id: roomId },
-      include: { users: true },
+      include: { users: { include: { flaggedBy: true } } },
     });
 
     if (room) {
       res.json({
-        traitorCount: room.users.filter((user) => user.isTraitor).length,
-        blockedUsers: room.users.filter((user) => user.sentiment <= 0),
+        traitorCount: room.users.filter((user) =>
+          user.isTraitor
+          && user.sentiment > 0
+          && user.flaggedBy.length < 3).length,
+        blockedUsers: room.users.filter((user) =>
+          user.sentiment <= 0
+          || user.flaggedBy.length >= 3),
       });
     } else {
       res.status(404).send('Room not found');

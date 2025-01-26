@@ -20,42 +20,64 @@ const avatars = {
     1: '/images/profile_1.png',
     2: '/images/profile_2.png',
 };
-/* GET users listing. */
-router.get('/', function (req, res, next) {
-    res.send('respond with a resource');
-});
-router.get('/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    const id = req.params.id;
-    try {
-        const user = yield prisma.user.findUnique({
-            where: { id },
-            include: {
-                likes: {
-                    include: {
-                        Post: {
-                            include: {
-                                User: true,
-                            }
-                        },
-                    }
+const createUsersRouter = (io) => {
+    /* GET users listing. */
+    router.get('/', function (req, res, next) {
+        res.send('respond with a resource');
+    });
+    router.get('/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const id = req.params.id;
+        try {
+            const user = yield prisma.user.findUnique({
+                where: { id },
+                include: {
+                    likes: {
+                        include: {
+                            Post: {
+                                include: {
+                                    User: true,
+                                }
+                            },
+                        }
+                    },
+                    dislikes: {
+                        include: {
+                            Post: {
+                                include: {
+                                    User: true,
+                                }
+                            },
+                        }
+                    },
+                    flaggedBy: true,
+                    flags: true,
+                    comments: true,
+                    posts: true,
                 },
-                dislikes: {
-                    include: {
-                        Post: {
-                            include: {
-                                User: true,
-                            }
-                        },
-                    }
+            });
+            res.json(user);
+        }
+        catch (error) {
+            next(error);
+        }
+    }));
+    router.post('/:id/flag', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+        const id = req.params.id;
+        const { flaggedById } = req.body;
+        try {
+            const flag = yield prisma.flag.create({
+                data: {
+                    userId: flaggedById,
+                    flaggedById: id,
                 },
-                comments: true,
-                posts: true,
-            },
-        });
-        res.json(user);
-    }
-    catch (error) {
-        next(error);
-    }
-}));
-exports.default = router;
+            });
+            io.emit('flagged', flag);
+            res.json(flag);
+        }
+        catch (error) {
+            next(error);
+        }
+    }));
+    return router;
+};
+exports.default = createUsersRouter;

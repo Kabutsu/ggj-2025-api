@@ -31,7 +31,7 @@ app.use(express_1.default.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express_1.default.static(path.join(__dirname, 'public')));
 app.use('/', index_1.default);
-app.use('/users', users_1.default);
+app.use('/users', (0, users_1.default)(io));
 app.use('/posts', (0, posts_1.default)(io));
 app.use('/rooms', rooms_1.default);
 // socket setup
