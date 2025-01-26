@@ -30,6 +30,28 @@ router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
   try {
     const user = await prisma.user.findUnique({
       where: { id },
+      include: {
+        likes: {
+          include: {
+            Post: {
+              include: {
+                User: true,
+              }
+            },
+          }
+        },
+        dislikes: {
+          include: {
+            Post: {
+              include: {
+                User: true,
+              }
+            },
+          }
+        },
+        comments: true,
+        posts: true,
+      },
     });
     res.json(user);
   } catch (error) {

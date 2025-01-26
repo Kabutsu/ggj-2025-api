@@ -29,6 +29,28 @@ router.get('/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, functio
     try {
         const user = yield prisma.user.findUnique({
             where: { id },
+            include: {
+                likes: {
+                    include: {
+                        Post: {
+                            include: {
+                                User: true,
+                            }
+                        },
+                    }
+                },
+                dislikes: {
+                    include: {
+                        Post: {
+                            include: {
+                                User: true,
+                            }
+                        },
+                    }
+                },
+                comments: true,
+                posts: true,
+            },
         });
         res.json(user);
     }

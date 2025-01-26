@@ -23,8 +23,16 @@ const createPostsRouter = (io: Server) => {
               User: true,
             },
           },
-          likes: true,
-          dislikes: true,
+          likes: {
+            include: {
+              User: true,
+            }
+          },
+          dislikes: {
+            include: {
+              User: true,
+            }
+          },
         },
         orderBy: [
           {

@@ -85,11 +85,11 @@ router.get('/:roomId/status', (req, res) => __awaiter(void 0, void 0, void 0, fu
     try {
         const room = yield prisma.room.findUnique({
             where: { id: roomId },
-            include: { traitors: true, users: true },
+            include: { users: true },
         });
         if (room) {
             res.json({
-                traitorCount: room.traitors.length,
+                traitorCount: room.users.filter((user) => user.isTraitor).length,
                 blockedUsers: room.users.filter((user) => user.sentiment <= 0),
             });
         }
