@@ -92,4 +92,27 @@ router.post('/join-room', async (req, res) => {
   }
 });
 
+router.get('/:roomId/status', async (req, res) => {
+  const roomId = req.params.roomId;
+
+  try {
+    const room = await prisma.room.findUnique({
+      where: { id: roomId },
+      include: { users: true },
+    });
+
+    if (room) {
+      res.json({
+        traitorCount: room.users.filter((user) => user.isTraitor).length,
+        blockedUsers: room.users.filter((user) => user.sentiment <= 0),
+      });
+    } else {
+      res.status(404).send('Room not found');
+    }
+  } catch (err) {
+    console.error('Error fetching traitors:', err);
+    res.status(500).send('Error fetching traitors');
+  }
+});
+
 export default router;

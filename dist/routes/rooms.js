@@ -80,4 +80,26 @@ router.post('/join-room', (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.status(500).send('Error joining room');
     }
 }));
+router.get('/:roomId/status', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const roomId = req.params.roomId;
+    try {
+        const room = yield prisma.room.findUnique({
+            where: { id: roomId },
+            include: { traitors: true, users: true },
+        });
+        if (room) {
+            res.json({
+                traitorCount: room.traitors.length,
+                blockedUsers: room.users.filter((user) => user.sentiment <= 0),
+            });
+        }
+        else {
+            res.status(404).send('Room not found');
+        }
+    }
+    catch (err) {
+        console.error('Error fetching traitors:', err);
+        res.status(500).send('Error fetching traitors');
+    }
+}));
 exports.default = router;
