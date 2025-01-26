@@ -46,6 +46,12 @@ router.post('/join-room', async (req, res) => {
     });
 
     if (room) {
+      const existingUser = room.users.find((user) => user.name === name);
+
+      if (existingUser) {
+        return res.status(400).send('User already exists in room');
+      }
+
       const user = await prisma.user.create({
         data: {
           name,

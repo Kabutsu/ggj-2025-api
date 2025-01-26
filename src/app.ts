@@ -35,7 +35,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
-app.use('/posts', postsRouter);
+app.use('/posts', postsRouter(io));
 app.use('/rooms', roomsRouter);
 
 // socket setup
@@ -69,8 +69,6 @@ io.on('connection', (socket) => {
 
   socket.on('join-room', ({ roomCode, userId }) => {
     socket.join(roomCode);
-    
-    // Broadcast to others in the room that a new user has joined
     io.to(roomCode).emit('user-joined', { userId });
     console.log(`${userId} joined room ${roomCode}`);
   });

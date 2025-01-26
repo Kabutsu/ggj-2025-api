@@ -24,5 +24,16 @@ const avatars = {
 router.get('/', function (req, res, next) {
     res.send('respond with a resource');
 });
-router.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* () { }));
+router.get('/:id', (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    try {
+        const user = yield prisma.user.findUnique({
+            where: { id },
+        });
+        res.json(user);
+    }
+    catch (error) {
+        next(error);
+    }
+}));
 exports.default = router;

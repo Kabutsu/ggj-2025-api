@@ -32,7 +32,7 @@ app.use(cookieParser());
 app.use(express_1.default.static(path.join(__dirname, 'public')));
 app.use('/', index_1.default);
 app.use('/users', users_1.default);
-app.use('/posts', posts_1.default);
+app.use('/posts', (0, posts_1.default)(io));
 app.use('/rooms', rooms_1.default);
 // socket setup
 io.on('connection', (socket) => {
@@ -59,7 +59,6 @@ io.on('connection', (socket) => {
     });
     socket.on('join-room', ({ roomCode, userId }) => {
         socket.join(roomCode);
-        // Broadcast to others in the room that a new user has joined
         io.to(roomCode).emit('user-joined', { userId });
         console.log(`${userId} joined room ${roomCode}`);
     });

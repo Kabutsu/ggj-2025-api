@@ -24,6 +24,17 @@ router.get('/', function(req: Request, res: Response, next: NextFunction) {
   res.send('respond with a resource');
 });
 
-router.post('/register', async (req: Request, res: Response) => {})
+router.get('/:id', async (req: Request, res: Response, next: NextFunction) => {
+  const id = req.params.id;
+
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id },
+    });
+    res.json(user);
+  } catch (error) {
+    next(error);
+  }
+});
 
 export default router;
