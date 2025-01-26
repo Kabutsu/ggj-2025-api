@@ -26,9 +26,26 @@ const createPostsRouter = (io: Server) => {
           likes: true,
           dislikes: true,
         },
-        orderBy: {
-          createdAt: 'desc',
-        }
+        orderBy: [
+          {
+            likes: {
+              _count: 'desc',
+            },
+          },
+          {
+            comments: {
+              _count: 'desc',
+            },
+          },
+          {
+            User: {
+              sentiment: 'desc',
+            },
+          },
+          {
+            createdAt: 'desc',
+          },
+        ],
       });
       res.json(posts);
     } catch (error) {

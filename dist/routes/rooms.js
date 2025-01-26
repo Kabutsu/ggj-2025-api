@@ -38,12 +38,26 @@ router.post('/join-room', (req, res) => __awaiter(void 0, void 0, void 0, functi
     try {
         const room = yield prisma.room.findUnique({
             where: { code },
-            include: { users: true },
+            include: { users: true, traitors: true }, // Include traitors in the query
         });
         if (room) {
             const existingUser = room.users.find((user) => user.name === name);
             if (existingUser) {
                 return res.status(400).send('User already exists in room');
+            }
+            // Total number of users in the room (including the new one)
+            const totalUsers = room.users.length + 1;
+            // Number of traitors already in the room
+            const totalTraitors = room.traitors.length;
+            // Calculate if the user should be a traitor
+            let isTraitor = false;
+            const traitorThreshold = Math.floor(totalUsers / 7);
+            // Ensure 1 in 7 traitor ratio
+            if (totalTraitors < traitorThreshold) {
+                isTraitor = true; // Ensure this user becomes a traitor if traitor ratio is not met
+            }
+            else if (Math.random() < 1 / 7) {
+                isTraitor = true; // 1 in 7 chance to assign as traitor
             }
             const user = yield prisma.user.create({
                 data: {
@@ -51,9 +65,10 @@ router.post('/join-room', (req, res) => __awaiter(void 0, void 0, void 0, functi
                     roomId: room.id,
                     sentiment: 50,
                     profileUrl,
+                    isTraitor, // Assign the traitor status
                 },
             });
-            console.log(`User ${user.id} joined room ${room.code}`);
+            console.log(`User ${user.id} joined room ${room.code} with traitor status: ${isTraitor}`);
             res.json(user);
         }
         else {
@@ -61,23 +76,8 @@ router.post('/join-room', (req, res) => __awaiter(void 0, void 0, void 0, functi
         }
     }
     catch (err) {
+        console.error('Error joining room:', err);
         res.status(500).send('Error joining room');
-    }
-}));
-// Route to assign traitor
-router.post('/assign-traitor', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { id } = req.body;
-    try {
-        const user = yield prisma.user.update({
-            where: { id },
-            data: {
-                isTraitor: true,
-            },
-        });
-        res.json(user);
-    }
-    catch (err) {
-        res.status(500).send('Error assigning traitor');
     }
 }));
 exports.default = router;

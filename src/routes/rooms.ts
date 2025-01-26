@@ -42,7 +42,7 @@ router.post('/join-room', async (req, res) => {
   try {
     const room = await prisma.room.findUnique({
       where: { code },
-      include: { users: true },
+      include: { users: true, traitors: true }, // Include traitors in the query
     });
 
     if (room) {
@@ -52,40 +52,43 @@ router.post('/join-room', async (req, res) => {
         return res.status(400).send('User already exists in room');
       }
 
+      // Total number of users in the room (including the new one)
+      const totalUsers = room.users.length + 1;
+      // Number of traitors already in the room
+      const totalTraitors = room.traitors.length;
+
+      // Calculate if the user should be a traitor
+      let isTraitor = false;
+      const traitorThreshold = Math.floor(totalUsers / 7);
+
+      // Ensure 1 in 7 traitor ratio
+      if (totalTraitors < traitorThreshold) {
+        isTraitor = true; // Ensure this user becomes a traitor if traitor ratio is not met
+      } else if (Math.random() < 1 / 7) {
+        isTraitor = true; // 1 in 7 chance to assign as traitor
+      }
+
       const user = await prisma.user.create({
         data: {
           name,
           roomId: room.id,
           sentiment: 50,
           profileUrl,
+          isTraitor, // Assign the traitor status
         },
       });
 
-      console.log(`User ${user.id} joined room ${room.code}`);
+      console.log(
+        `User ${user.id} joined room ${room.code} with traitor status: ${isTraitor}`
+      );
 
       res.json(user);
     } else {
       res.status(404).send('Room not found');
     }
   } catch (err) {
+    console.error('Error joining room:', err);
     res.status(500).send('Error joining room');
-  }
-});
-
-// Route to assign traitor
-router.post('/assign-traitor', async (req, res) => {
-  const { id } = req.body as AssignTraitorRequest;
-  try {
-    const user = await prisma.user.update({
-      where: { id },
-      data: {
-        isTraitor: true,
-      },
-    });
-
-    res.json(user);
-  } catch (err) {
-    res.status(500).send('Error assigning traitor');
   }
 });
 
